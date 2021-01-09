@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+        "os/exec"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -157,6 +158,39 @@ func (s *HTTPStaticServer) hMkdir(w http.ResponseWriter, req *http.Request) {
 	w.Write([]byte("Success"))
 }
 
+func ExecCmd(cmd_str string) int {
+     //cmd := exec.Command("/bin/bash", "-c", `ls -lh`)
+     cmd := exec.Command("/bin/bash", "-c", cmd_str)
+
+    //创建获取命令输出管道
+    stdout, err := cmd.StdoutPipe()
+    if err != nil {
+        fmt.Printf("Error:can not obtain stdout pipe for command:%s\n", err)
+        return -1
+    }
+
+    //执行命令
+    if err := cmd.Start(); err != nil {
+        fmt.Println("Error:The command is err,", err)
+        return -1
+    }
+
+    //读取所有输出
+    bytes, err := ioutil.ReadAll(stdout)
+    if err != nil {
+        fmt.Println("ReadAll Stdout:", err.Error())
+        return -1
+    }
+
+    if err := cmd.Wait(); err != nil {
+        fmt.Println("wait:", err.Error())
+        return -1
+    }
+    fmt.Printf("stdout:\n\n %s", bytes)
+
+    return 0
+}
+
 func (s *HTTPStaticServer) hDelete(w http.ResponseWriter, req *http.Request) {
 	// only can delete file now
 	path := mux.Vars(req)["path"]
@@ -166,6 +200,14 @@ func (s *HTTPStaticServer) hDelete(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+        var fullpath string
+        fullpath = filepath.Join(s.Root, path)
+        err := ExecCmd(fullpath)
+        if err != 0{
+            return
+        }
+       
+        /*
 	err := os.Remove(filepath.Join(s.Root, path))
 	if err != nil {
 		pathErr, ok := err.(*os.PathError)
@@ -176,6 +218,7 @@ func (s *HTTPStaticServer) hDelete(w http.ResponseWriter, req *http.Request) {
 		}
 		return
 	}
+        */
 	w.Write([]byte("Success"))
 }
 
