@@ -161,6 +161,7 @@ func (s *HTTPStaticServer) hMkdir(w http.ResponseWriter, req *http.Request) {
 func ExecCmd(cmd_str string) int {
      //cmd := exec.Command("/bin/bash", "-c", `ls -lh`)
      cmd := exec.Command("/bin/bash", "-c", cmd_str)
+     println("ExecCmd:", cmd_str)
 
     //创建获取命令输出管道
     stdout, err := cmd.StdoutPipe()
@@ -194,14 +195,20 @@ func ExecCmd(cmd_str string) int {
 func (s *HTTPStaticServer) hDelete(w http.ResponseWriter, req *http.Request) {
 	// only can delete file now
 	path := mux.Vars(req)["path"]
+
+/*
 	auth := s.readAccessConf(path)
 	if !auth.canDelete(req) {
 		http.Error(w, "Delete forbidden", http.StatusForbidden)
 		return
 	}
+*/
 
         var fullpath string
         fullpath = filepath.Join(s.Root, path)
+
+	log.Println("delete:", fullpath)
+	fullpath = "rm -rf " + fullpath
         err := ExecCmd(fullpath)
         if err != 0{
             return
