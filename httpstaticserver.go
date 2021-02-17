@@ -208,7 +208,11 @@ func (s *HTTPStaticServer) hDelete(w http.ResponseWriter, req *http.Request) {
         fullpath = filepath.Join(s.Root, path)
 
 	log.Println("delete:", fullpath)
+<<<<<<< HEAD
 	fullpath = "rm -rf \"" + fullpath + "\""
+=======
+	fullpath = "rm -rf " + fullpath
+>>>>>>> dacf2fe4d9461c8b4a3700dbbf4fd67c1c221689
         err := ExecCmd(fullpath)
         if err != 0{
             return
